@@ -1,0 +1,18 @@
+<configuration>
+
+    <!-- for console -->
+    <property name="pattern" value="%date{ISO8601} [%thread] [%logger{5}] %message%n%xException"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="lp" level="INFO" />
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>
