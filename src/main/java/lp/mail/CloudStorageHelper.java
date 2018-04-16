@@ -1,6 +1,7 @@
 package lp.mail;
 
 import com.google.cloud.storage.*;
+import com.google.common.io.ByteStreams;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -30,12 +31,14 @@ public class CloudStorageHelper {
 
         //InputStream content = new ByteArrayInputStream("Hello, World!".getBytes(UTF_8));
         Blob blob = bucket.create(fileName, in, contentType);
+        //blob.get
+
 
         // the inputstream is closed by default, so we don't need to close it here
-        BlobInfo blobInfo =
-                storage.create(blob);
+//        BlobInfo blobInfo =
+//                storage.create(blob, ByteStreams.toByteArray(in));
         // return the public download link
-        return blobInfo.getMediaLink();
+        return blob.getMediaLink();
     }
     // [END uploadFile]
 
