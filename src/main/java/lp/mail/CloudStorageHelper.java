@@ -1,49 +1,22 @@
 package lp.mail;
 
-import com.google.cloud.storage.*;
-import com.google.common.io.ByteStreams;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.io.InputStream;
 
-// [START example]
 public class CloudStorageHelper {
 
     private final static Storage storage = StorageOptions.getDefaultInstance().getService();
     private final static Bucket bucket = storage.get("tlp-images");
-    //private final static String pathPrefix = "cam_snapshots/";
-
-    // [START uploadFile]
 
     /**
-     * Uploads a file to Google Cloud Storage to the bucket specified in the BUCKET_NAME
-     * environment variable, appending a timestamp to end of the uploaded filename.
+     * Uploads a file to Google Cloud Storage to the bucket specified in the defined bucket
      */
-    public String uploadFile(final String fileName, final InputStream in, final String contentType)
-            throws IOException, ServletException {
-        //checkFileExtension(fileName);
-
-//        DateTimeFormatter dtf = DateTimeFormat.forPattern("-YYYY-MM-dd-HHmmssSSS");
-//        DateTime dt = DateTime.now(DateTimeZone.UTC);
-//        String dtString = dt.toString(dtf);
-//        final String fileName = fileStream.getName() + dtString;
-
-        //InputStream content = new ByteArrayInputStream("Hello, World!".getBytes(UTF_8));
+    public String uploadFile(final String fileName, final InputStream in, final String contentType) {
         Blob blob = bucket.create(fileName, in, contentType);
-        //blob.get
-
-
-        // the inputstream is closed by default, so we don't need to close it here
-//        BlobInfo blobInfo =
-//                storage.create(blob, ByteStreams.toByteArray(in));
-        // return the public download link
         return blob.getMediaLink();
     }
-    // [END uploadFile]
-
-    // [START checkFileExtension]
-
-    // [END checkFileExtension]
 }
-// [END example]

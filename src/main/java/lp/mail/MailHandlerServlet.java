@@ -1,14 +1,7 @@
 package lp.mail;
 
-// [START mail_handler_servlet]
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -16,16 +9,16 @@ import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Properties;
 
 public class MailHandlerServlet extends HttpServlet {
 
     private final static Logger logger = LoggerFactory.getLogger(MailHandlerServlet.class);
-    private static final Properties props = new Properties();
+    private final static Properties props = new Properties();
     private final static String[] allowedExt = {".jpg", ".jpeg", ".png"};
     private final static CloudStorageHelper storage = new CloudStorageHelper();
 
@@ -36,6 +29,7 @@ public class MailHandlerServlet extends HttpServlet {
             MimeMessage message = new MimeMessage(session, req.getInputStream());
             String from = message.getFrom()[0].toString();
             String subject = message.getSubject();
+            long latency = System.currentTimeMillis() - message.getSentDate().getTime();
             String sentDate = message.getSentDate().toString();
             String contentType = message.getContentType();
             String messageContent = "";
@@ -53,11 +47,11 @@ public class MailHandlerServlet extends HttpServlet {
                     if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
                         // this part is attachment
                         String fileName = part.getFileName();
-                        String fileContentType = part.getContentType();
+                        String fileContentType = part.getContentType().split(";")[0];
                         checkFileExtension(fileName);
                         attachFiles += fileName + ", ";
-                        logger.info(String.format("uploading file=%s contentType=%s size=%d",fileName, fileContentType, part.getSize()));
-                        storage.uploadFile(fileName,(InputStream) part.getContent(), "image/jpeg");
+                        logger.info(String.format("uploading file=%s contentType=%s size=%d", fileName, fileContentType, part.getSize()));
+                        storage.uploadFile(fileName, part.getInputStream(), "image/jpeg");
                     } else {
                         // this part may be the message content
                         messageContent = part.getContent().toString();
@@ -74,15 +68,14 @@ public class MailHandlerServlet extends HttpServlet {
                 }
             }
 
-            logger.info(String.format("Received mail message from: %s subject: %s date: %s contentType: %s attachFiles: %s messageContent: %s", from, subject,
-                    sentDate, contentType, attachFiles, messageContent));
+            logger.info(String.format("Received mail message from: %s subject: %s latency: %d contentType: %s attachFiles: %s messageContent: %s", from,
+                    subject, latency, contentType, attachFiles, messageContent));
         } catch (MessagingException e) {
             logger.error("Received mail message but error occurred.", e);
             // ...
         } catch (Exception e) {
             logger.error("unexpected error", e);
         }
-        // ...
     }
 
     /**
@@ -100,4 +93,3 @@ public class MailHandlerServlet extends HttpServlet {
     }
 
 }
-// [END mail_handler_servlet]
