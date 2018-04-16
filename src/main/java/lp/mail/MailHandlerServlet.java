@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -55,7 +56,8 @@ public class MailHandlerServlet extends HttpServlet {
                         String fileContentType = part.getContentType();
                         checkFileExtension(fileName);
                         attachFiles += fileName + ", ";
-                        storage.uploadFile(fileName, part.getInputStream(), "image/jpeg");
+                        logger.info(String.format("uploading file=%s contentType=%s size=%d",fileName, fileContentType, part.getSize()));
+                        storage.uploadFile(fileName,(InputStream) part.getContent(), "image/jpeg");
                     } else {
                         // this part may be the message content
                         messageContent = part.getContent().toString();
