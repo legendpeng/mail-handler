@@ -10,7 +10,7 @@ import java.io.InputStream;
 public class CloudStorageHelper {
 
     private final static Storage storage = StorageOptions.getDefaultInstance().getService();
-    private final static Bucket bucket = storage.create(BucketInfo.of("tlp-images"));
+    private final static Bucket bucket = storage.get("tlp-images");
     //private final static String pathPrefix = "cam_snapshots/";
 
     // [START uploadFile]
