@@ -55,7 +55,7 @@ public class MailHandlerServlet extends HttpServlet {
                         String fileContentType = part.getContentType();
                         checkFileExtension(fileName);
                         attachFiles += fileName + ", ";
-                        //storage.uploadFile(fileName, part.getRawInputStream(), fileContentType);
+                        storage.uploadFile(fileName, part.getRawInputStream(), fileContentType);
                         //part.saveFile(saveDirectory + File.separator + fileName);
                     } else {
                         // this part may be the message content
