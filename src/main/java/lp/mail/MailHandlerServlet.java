@@ -53,10 +53,10 @@ public class MailHandlerServlet extends HttpServlet {
                         checkFileExtension(fileName);
                         attachFiles += fileName + ", ";
                         logger.info(String.format("uploading file=%s contentType=%s size=%d", fileName, fileContentType, part.getSize()));
-                        storage.uploadFile(fileName.substring(0,8)+"/"+fileName, part.getInputStream(), "image/jpeg");
+                        storage.uploadFile(fileName.substring(0, 8) + "/" + fileName, part.getInputStream(), "image/jpeg");
                     } else {
                         // this part may be the message content
-                        messageContent = part.getContent().toString();
+                        messageContent = "part " + partCount + " " + part.getContent().toString();
                     }
                 }
 
@@ -66,7 +66,7 @@ public class MailHandlerServlet extends HttpServlet {
             } else if (contentType.contains("text/plain") || contentType.contains("text/html")) {
                 Object content = message.getContent();
                 if (content != null) {
-                    messageContent = content.toString();
+                    messageContent = "main: " + content.toString();
                 }
             }
 
