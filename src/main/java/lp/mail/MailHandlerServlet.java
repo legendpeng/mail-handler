@@ -24,22 +24,24 @@ public class MailHandlerServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        long receivedTime = System.currentTimeMillis();
         Session session = Session.getDefaultInstance(props, null);
         try {
             MimeMessage message = new MimeMessage(session, req.getInputStream());
             String from = message.getFrom()[0].toString();
             String subject = message.getSubject();
-            long latency = System.currentTimeMillis() - message.getSentDate().getTime();
+            long latency = receivedTime - message.getSentDate().getTime();
             String sentDate = message.getSentDate().toString();
             String contentType = message.getContentType();
             String messageContent = "";
             // store attachment file name, separated by comma
             String attachFiles = "";
+            int numberOfParts = 0;
 
             if (contentType.contains("multipart")) {
                 // content may contain attachments
                 Multipart multiPart = (Multipart) message.getContent();
-                int numberOfParts = multiPart.getCount();
+                numberOfParts = multiPart.getCount();
                 for (int partCount = 0;
                      partCount < numberOfParts;
                      partCount++) {
@@ -51,7 +53,7 @@ public class MailHandlerServlet extends HttpServlet {
                         checkFileExtension(fileName);
                         attachFiles += fileName + ", ";
                         logger.info(String.format("uploading file=%s contentType=%s size=%d", fileName, fileContentType, part.getSize()));
-                        storage.uploadFile(fileName, part.getInputStream(), "image/jpeg");
+                        storage.uploadFile(fileName.substring(0,8)+"/"+fileName, part.getInputStream(), "image/jpeg");
                     } else {
                         // this part may be the message content
                         messageContent = part.getContent().toString();
@@ -68,8 +70,7 @@ public class MailHandlerServlet extends HttpServlet {
                 }
             }
 
-            logger.info(String.format("Received mail message from: %s subject: %s latency: %d contentType: %s attachFiles: %s messageContent: %s", from,
-                    subject, latency, contentType, attachFiles, messageContent));
+            logger.info(String.format("Received mail from: %s subject: %s latency: %d  duration: %d contentType: %s numberOfParts: %d attachFiles: %s messageContent: %s", from, subject, latency, System.currentTimeMillis() - receivedTime, contentType, numberOfParts, attachFiles, messageContent));
         } catch (MessagingException e) {
             logger.error("Received mail message but error occurred.", e);
             // ...
